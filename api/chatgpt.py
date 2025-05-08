@@ -20,14 +20,13 @@ class ChatGPT:
         self.prompt = Prompt()
         self.deployment_name = deployment
         self.temperature = float(os.getenv("OPENAI_TEMPERATURE", 0))
-        self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", 500))
+        self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", 2000))
 
     def get_response(self):
         response = client.chat.completions.create(
             messages=self.prompt.generate_prompt(),
             max_completion_tokens=self.max_tokens,
             model=self.deployment_name,
-            temperature=self.temperature,
         )
         return response.choices[0].message.content
 
