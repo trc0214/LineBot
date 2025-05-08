@@ -1,22 +1,33 @@
 from api.prompt import Prompt
 import os
-from openai import OpenAI
-client = OpenAI()
+from openai import AzureOpenAI
+import dotenv
+dotenv.load_dotenv()
 
-client.api_key = os.getenv("OPENAI_API_KEY")
+endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "https://41241-maepdksw-eastus2.cognitiveservices.azure.com/")
+deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "o3-mini")
+subscription_key = os.getenv("AZURE_OPENAI_KEY")
+api_version = os.getenv("OPENAI_API_VERSION", "2024-12-01-preview")
 
+client = AzureOpenAI(
+    api_version=api_version,
+    azure_endpoint=endpoint,
+    api_key=subscription_key,
+)
 
 class ChatGPT:
     def __init__(self):
         self.prompt = Prompt()
-        self.model = os.getenv("OPENAI_MODEL", default = "gpt-4-1106-preview")
-        self.temperature = float(os.getenv("OPENAI_TEMPERATURE", default = 0))
-        self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", default = 500))
+        self.deployment_name = deployment
+        self.temperature = float(os.getenv("OPENAI_TEMPERATURE", 0))
+        self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", 500))
 
     def get_response(self):
         response = client.chat.completions.create(
-            model=self.model,
             messages=self.prompt.generate_prompt(),
+            max_completion_tokens=self.max_tokens,
+            model=self.deployment_name,
+            temperature=self.temperature,
         )
         return response.choices[0].message.content
 
